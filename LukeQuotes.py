@@ -2,12 +2,28 @@ import discord
 from discord.ext import commands, tasks
 import random
 import numpy as np
+import os
 
-client = commands.Bot(command_prefix='.')
-token = "MTA2MzcwMDQyNzk3MzA3NDk4NQ.G1yUvQ.shO1-K4uaz1tIwyjb-IlvZZgpYOpgDb_1WefcE"
+import discord
+from dotenv import load_dotenv
 
-@tasks.loop(seconds=10)
-async def Luke():
-    channel = client.get_channel("1063700026620117004")
-    qList = np.loadtxt("LukeQuoteList.txt")
-    await channel.send(random.choice(qList))
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+CHANNEL = 1063700026620117004 #Test Server General
+
+client = discord.Client(intents=discord.Intents.default())
+
+@client.event
+async def on_ready():
+    Quote.start()
+
+file = "LukeQuoteList.txt"
+
+@tasks.loop(hours=24)
+async def Quote():
+    channel = client.get_channel(CHANNEL)
+    f = open(file,'r',encoding='utf8')
+    lines = f.readlines()
+    await channel.send(random.choice(lines))
+    
+client.run(TOKEN)
